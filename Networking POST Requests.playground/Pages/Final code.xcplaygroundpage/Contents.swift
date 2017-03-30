@@ -29,19 +29,19 @@ extension HttpMethod {
 
 
 struct Resource<A> {
-    let url: NSURL
-    let method: HttpMethod<NSData>
-    let parse: (NSData) -> A?
+    let url: URL
+    let method: HttpMethod<Data>
+    let parse: (Data) -> A?
 }
 
 extension Resource {
-    init(url: NSURL, method: HttpMethod<AnyObject> = .get, parseJSON: (AnyObject) -> A?) {
+    init(url: URL, method: HttpMethod<Any> = .get, parseJSON: @escaping (Any) -> A?) {
         self.url = url
         self.method = method.map { json in
-            try! NSJSONSerialization.dataWithJSONObject(json, options: [])
+            try! JSONSerialization.data(withJSONObject: json, options: [])
         }
         self.parse = { data in
-            let json = try? NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions())
+            let json = try? JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions())
             return json.flatMap(parseJSON)
         }
     }
@@ -49,29 +49,28 @@ extension Resource {
 
 
 func pushNotification(token: String) -> Resource<Bool> {
-    let url = NSURL(string: "Some test URL")!
+    let url = URL(string: "Some test URL")!
     let dictionary = ["token": token]
     return Resource(url: url, method: .post(dictionary), parseJSON: { _ in
         return true
     })
 }
 
-
-extension NSMutableURLRequest {
-    convenience init<A>(resource: Resource<A>) {
-        self.init(URL: resource.url)
-        HTTPMethod = resource.method.method
+extension URLRequest {
+    init<A>(resource: Resource<A>) {
+        self.init(url: resource.url)
+        self.httpMethod = resource.method.method
         if case let .post(data) = resource.method {
-            HTTPBody = data
+            httpBody = data
         }
     }
 }
 
 
 final class Webservice {
-    func load<A>(resource: Resource<A>, completion: A? -> ()) {
-        let request = NSMutableURLRequest(resource: resource)
-        NSURLSession.sharedSession().dataTaskWithRequest(request) { data, _, _ in
+    func load<A>(resource: Resource<A>, completion: @escaping (A?) -> ()) {
+        let request = URLRequest(resource: resource)
+        URLSession.shared.dataTask(with: request) { data, _, _ in
             completion(data.flatMap(resource.parse))
         }.resume()
     }
