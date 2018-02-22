@@ -6,6 +6,9 @@ typealias JSONDictionary = [String: AnyObject]
 enum HttpMethod<Body> {
     case get
     case post(Body)
+    case patch(Body)
+    case put(Body)
+    case delete(Body)
 }
 
 extension HttpMethod {
@@ -13,6 +16,9 @@ extension HttpMethod {
         switch self {
         case .get: return "GET"
         case .post: return "POST"
+        case .patch: return "PATCH"
+        case .put: return "PUT"
+        case .delete: return "DELETE"
         }
     }
     
@@ -21,11 +27,15 @@ extension HttpMethod {
         case .get: return .get
         case .post(let body):
             return .post(f(body))
+        case .patch(let body):
+            return .patch(f(body))
+        case .put(let body):
+            return .put(f(body))
+        case .delete(let body):
+            return .delete(f(body))
         }
-        
     }
 }
-
 
 struct Resource<A> {
     let url: URL
@@ -46,7 +56,6 @@ extension Resource {
     }
 }
 
-
 func pushNotification(token: String) -> Resource<Bool> {
     let url = URL(string: "Some test URL")!
     let dictionary = ["token": token]
@@ -55,12 +64,20 @@ func pushNotification(token: String) -> Resource<Bool> {
     })
 }
 
-
 extension URLRequest {
     init<A>(resource: Resource<A>) {
         self.init(url: resource.url)
         httpMethod = resource.method.method
         if case let .post(data) = resource.method {
+            httpBody = data
+        }
+        if case let .patch(data) = resource.method {
+            httpBody = data
+        }
+        if case let .put(data) = resource.method {
+            httpBody = data
+        }
+        if case let .delete(data) = resource.method {
             httpBody = data
         }
     }
