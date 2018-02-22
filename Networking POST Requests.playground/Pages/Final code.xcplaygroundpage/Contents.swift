@@ -9,7 +9,7 @@ enum HttpMethod<Body> {
     case post(Body)
     case patch(Body)
     case put(Body)
-    case delete(Body)
+    case delete
     case connect
     case options
     case trace
@@ -40,8 +40,7 @@ extension HttpMethod {
             return .patch(f(body))
         case .put(let body):
             return .put(f(body))
-        case .delete(let body):
-            return .delete(f(body))
+        case .delete: return .delete
         case .connect: return .connect
         case .options: return .options
         case .trace: return .trace
@@ -87,9 +86,6 @@ extension URLRequest {
             httpBody = data
         }
         if case let .put(data) = resource.method {
-            httpBody = data
-        }
-        if case let .delete(data) = resource.method {
             httpBody = data
         }
     }
