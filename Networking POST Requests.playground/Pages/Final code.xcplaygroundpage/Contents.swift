@@ -5,26 +5,35 @@ typealias JSONDictionary = [String: AnyObject]
 
 enum HttpMethod<Body> {
     case get
+    case head
     case post(Body)
     case patch(Body)
     case put(Body)
     case delete(Body)
+    case connect
+    case options
+    case trace
 }
 
 extension HttpMethod {
     var method: String {
         switch self {
         case .get: return "GET"
+        case .head: return "HEAD"
         case .post: return "POST"
         case .patch: return "PATCH"
         case .put: return "PUT"
         case .delete: return "DELETE"
+        case .connect: return "CONNECT"
+        case .options: return "OPTIONS"
+        case .trace: return "TRACE"
         }
     }
     
     func map<B>(f: (Body) -> B) -> HttpMethod<B> {
         switch self {
         case .get: return .get
+        case .head: return .head
         case .post(let body):
             return .post(f(body))
         case .patch(let body):
@@ -33,6 +42,9 @@ extension HttpMethod {
             return .put(f(body))
         case .delete(let body):
             return .delete(f(body))
+        case .connect: return .connect
+        case .options: return .options
+        case .trace: return .trace
         }
     }
 }
