@@ -4,15 +4,15 @@ typealias JSONDictionary = [String: AnyObject]
 
 
 enum HttpMethod<Body> {
-    case get
-    case head
-    case post(Body)
-    case patch(Body)
-    case put(Body)
-    case delete
-    case connect
-    case options
-    case trace
+    case get            // Retrieve data from resource identified by a given URI.
+    case head          // Retrieve data from resource identified by a given URI headers only.
+    case post(Body)   // Post Create a new record or upload resource as request payload
+    case patch(Body) // Patch / amend the resource identified by a given URI.
+    case put(Body)  // Replace the resource identified by a given URI; in essence this is delete and create new data with payload at same key
+    case delete    // Delete resource identified by a given URI.
+    case connect  // Establish a tunnel to the server identified by a given URI.
+    case options // Describes the communcation options for the target resource.
+    case trace  // Performs a message loop-back test along the path to the target resource.
 }
 
 extension HttpMethod {
