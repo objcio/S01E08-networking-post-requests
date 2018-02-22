@@ -1,4 +1,4 @@
-import UIKit
+import Foundation
 
 typealias JSONDictionary = [String: AnyObject]
 
